@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Redis;
 
 class Controller extends BaseController
 {
@@ -33,6 +34,11 @@ class Controller extends BaseController
             }
             $cityId = $cityInfo['location'][0]['id'];
             $data['cityId'] = $cityId;
+            // 获取缓存
+            $cache = Redis::get('weather_'.$cityId);
+            if(!is_null($cache)){
+                return json_encode(['code' => 1, 'data' => json_decode($cache,true)]);
+            }
             // 获取天气
             $weatherUrl = 'https://devapi.qweather.com/v7/weather/now?location=' . $data['cityId'] . '&key=' . $weatherKey;
             $weatherInfo = file_get_contents($weatherUrl);
@@ -44,6 +50,7 @@ class Controller extends BaseController
             $data['text'] = $weatherInfo['now']['text'];
             $data['windDir'] = $weatherInfo['now']['windDir'];
             $data['windScale'] = $weatherInfo['now']['windScale'];
+            Redis::setex('weather_'.$cityId, 3600, json_encode($data));
             return json_encode(['code' => 1, 'data' => $data]);
         }
         return json_encode(['code' => 0, 'data' => []]);
