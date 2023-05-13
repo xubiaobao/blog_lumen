@@ -99,4 +99,27 @@ class WebController extends Controller
         }
         return self::fail_response('数据插入失败');
     }
+
+    public function delMsg(Request $request)
+    {
+        $msgIds = $request->route('msg_ids');
+        $msgIds = explode(',', $msgIds);
+
+        // 数据验证
+        $message = new Message();
+        $condition = [
+            ['status', '=', 1]
+        ];
+        $count = $message->countIn($condition, $msgIds);
+        if ($count != count($msgIds)) {
+            return self::fail_response('数据错误');
+        }
+
+        // 假删除
+        $result = $message->changeIn($condition, $msgIds, ['status' => 0]);
+        if ($result) {
+            return self::success_response('Success', []);
+        }
+        return self::fail_response('删除失败');
+    }
 }

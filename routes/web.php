@@ -17,13 +17,15 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['prefix' => 'admin'], function () use ($router) {
+$router->group(['prefix' => 'blog'], function () use ($router) {
     $router->get('/weather', 'Controller@weather');
     $router->get('/getMsgList', 'WebController@getList');
     
     $router->post('/addMsg', 'WebController@addMsg');
+
+    $router->delete('/delMsg/{msg_ids}', 'WebController@delMsg');
 });
 
-$router->group(['prefix' => 'admin', 'middleware' => 'admin'], function () use ($router) {
-    $router->get('/mine', 'AccountController@mine');
-});
+// $router->group(['prefix' => 'blog', 'middleware' => 'admin'], function () use ($router) {
+//     $router->get('/mine', 'AccountController@mine');
+// });

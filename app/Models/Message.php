@@ -19,4 +19,14 @@ class Message extends Model
         $data['create_time'] = time();
         return self::insertGetId($data);
     }
+
+    public static function countIn($condition, $ids)
+    {
+        return self::where($condition)->whereIn('id', $ids)->count();
+    }
+
+    public static function changeIn($condition, $ids, $data)
+    {
+        return self::where($condition)->whereIn('id', $ids)->update($data);
+    }
 }
