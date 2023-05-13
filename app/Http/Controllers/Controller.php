@@ -7,6 +7,30 @@ use Illuminate\Support\Facades\Redis;
 
 class Controller extends BaseController
 {
+    protected static function response($error_code = '', $msg = '', $data = [])
+    {
+        $response = ['code' => $error_code, 'msg' => $msg, 'data' => $data];
+        return response()->json($response);
+    }
+
+    protected static function success_response($msg = '', $data = [])
+    {
+        return self::response(SUCCESS, $msg, $data);
+    }
+
+    protected static function fail_response($msg = '', $data = [])
+    {
+        return self::response(FAILED, $msg, $data);
+    }
+
+    protected static function unauthorized()
+    {
+        exit(response()->json(['error' => 'Unauthorized'], 401));
+    }
+
+    /**
+     * 根据ip地址获取当地天气
+     */
     public function weather()
     {
         // 腾讯定位服务
@@ -54,5 +78,31 @@ class Controller extends BaseController
             return json_encode(['code' => 1, 'data' => $data]);
         }
         return json_encode(['code' => 0, 'data' => []]);
+    }
+
+    /**
+     * @param $comment
+     * @return array
+     * 违法词过滤
+     */
+    public function checkWord($comment)
+    {
+        $list = config('errorWord');
+        $count = 0; //违规词的个数
+        $sensitiveWord = ''; //违规词
+        $stringAfter = $comment; //替换后的内容
+        $pattern = "/" . implode("|", $list) . "/i"; //定义正则表达式
+        //匹配到了结果
+        if (preg_match_all($pattern, $comment, $matches)) {
+            //匹配到的数组
+            $patternList = $matches[0];
+            $count = count($patternList);
+            //敏感词数组转字符串
+            $sensitiveWord = implode(',', $patternList);
+            //把匹配到的数组进行合并，替换使用
+            $replaceArray = array_combine($patternList, array_fill(0, count($patternList), '*'));
+            $stringAfter = strtr($comment, $replaceArray); //结果替换
+        }
+        return ['count' => $count, 'sensitiveWord' => $sensitiveWord, 'stringAfter' => $stringAfter];
     }
 }
