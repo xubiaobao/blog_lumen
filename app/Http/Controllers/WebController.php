@@ -148,8 +148,8 @@ class WebController extends Controller
         if (!$locationInfo) {
             return self::fail_response('获取失败');
         }
-
-        $weather = $this->weather($locationInfo);
+        
+        $weather = $this->weather(['result' => $locationInfo]);
 
         if ($weather) {
             return self::success_response('Success', $weather);
