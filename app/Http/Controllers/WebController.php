@@ -122,4 +122,39 @@ class WebController extends Controller
         }
         return self::fail_response('删除失败');
     }
+
+    /**
+     * 获取天气信息
+     * content str 留言内容
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getWeather(Request $request)
+    {
+        $message = [
+            'locationInfo.required' => '参数错误'
+        ];
+        $validator = Validator::make($request->all(), [
+            'locationInfo' => 'required'
+        ], $message);
+        if ($validator->fails()) {
+            foreach ($validator->errors()->getMessages() as $error) {
+                return self::fail_response($error[0]);
+            }
+        }
+
+        $locationInfo = $request->input('locationInfo');
+        $locationInfo = $locationInfo ? json_decode($locationInfo, true) : [];
+        if (!$locationInfo) {
+            return self::fail_response('获取失败');
+        }
+
+        $weather = $this->weather($locationInfo);
+
+        if ($weather) {
+            return self::success_response('Success', $weather);
+        }
+
+        return self::fail_response('获取失败');
+    }
 }

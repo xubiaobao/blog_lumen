@@ -18,7 +18,7 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['prefix' => 'blog'], function () use ($router) {
-    $router->get('/weather', 'Controller@weather');
+    $router->get('/weather', 'WebController@getWeather');
     $router->get('/getMsgList', 'WebController@getList');
     
     $router->post('/addMsg', 'WebController@addMsg');
